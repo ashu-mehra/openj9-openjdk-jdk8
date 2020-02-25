@@ -135,8 +135,10 @@ endif
 
 # Adjust JITServer enablement flags.
 ifeq (true,$(OPENJ9_ENABLE_JITSERVER))
+  FEATURE_SED_SCRIPT += $(call SedEnable,opt_jitserver)
   FEATURE_SED_SCRIPT += $(call SedEnable,build_jitserver)
 else
+  FEATURE_SED_SCRIPT += $(call SedDisable,opt_jitserver)
   FEATURE_SED_SCRIPT += $(call SedDisable,build_jitserver)
 endif
 
@@ -290,6 +292,7 @@ ifneq (,$(CCACHE))
 endif # CCACHE
 
 ifeq (true,$(OPENJ9_ENABLE_JITSERVER))
+  CMAKE_ARGS += -DJ9VM_OPT_JITSERVER=ON
   CMAKE_ARGS += -DJITSERVER_SUPPORT=ON
 
   ifneq (,$(OPENSSL_CFLAGS))
@@ -304,6 +307,7 @@ ifeq (true,$(OPENJ9_ENABLE_JITSERVER))
     CMAKE_ARGS += -DOPENSSL_BUNDLE_LIB_PATH="$(OPENSSL_BUNDLE_LIB_PATH)"
   endif
 else
+  CMAKE_ARGS += -DJ9VM_OPT_JITSERVER=OFF
   CMAKE_ARGS += -DJITSERVER_SUPPORT=OFF
 endif # OPENJ9_ENABLE_JITSERVER
 
@@ -319,6 +323,7 @@ run-preprocessors-j9 : $(OUTPUT_ROOT)/vm/cmake.stamp
 else # OPENJ9_ENABLE_CMAKE
 
 ifeq (true,$(OPENJ9_ENABLE_JITSERVER))
+  CUSTOM_COMPILER_ENV_VARS += J9VM_OPT_JITSERVER=1
   CUSTOM_COMPILER_ENV_VARS += JITSERVER_SUPPORT=1
 
   ifneq (,$(OPENSSL_CFLAGS))
